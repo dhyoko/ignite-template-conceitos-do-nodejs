@@ -119,7 +119,11 @@ app.delete(
   checksExistsUserAccount,
   findUserTodoById,
   (request, response) => {
-    // Complete aqui
+    const { todo, user } = request;
+
+    user.todos.splice(todo, 1);
+
+    return response.status(204).send();
   }
 );
 
