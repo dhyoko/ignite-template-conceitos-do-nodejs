@@ -27,6 +27,23 @@ const userAlreadyExists = (username) => {
   return users.some((user) => user.username === username);
 };
 
+const findUserTodoById = (request, response, next) => {
+  const { user } = request;
+  const { id } = request.params;
+
+  const todo = user.todos.find((todo) => todo.id === id);
+
+  if (!todo) {
+    return response
+      .status(404)
+      .json({ error: `Todo with id: ${id} was not found` });
+  }
+
+  request.todo = todo;
+
+  return next();
+};
+
 app.post('/users', (request, response) => {
   const { name, username } = request.body;
 
@@ -69,16 +86,41 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
   return response.status(201).json(todo);
 });
 
-app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
-});
+app.put(
+  '/todos/:id',
+  checksExistsUserAccount,
+  findUserTodoById,
+  (request, response) => {
+    const { todo } = request;
+    const { title, deadline } = request.body;
 
-app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
-});
+    todo.title = title;
+    todo.deadline = new Date(deadline);
 
-app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
-});
+    return response.json(todo);
+  }
+);
+
+app.patch(
+  '/todos/:id/done',
+  checksExistsUserAccount,
+  findUserTodoById,
+  (request, response) => {
+    const { todo } = request;
+
+    todo.done = true;
+
+    return response.json(todo);
+  }
+);
+
+app.delete(
+  '/todos/:id',
+  checksExistsUserAccount,
+  findUserTodoById,
+  (request, response) => {
+    // Complete aqui
+  }
+);
 
 module.exports = app;
