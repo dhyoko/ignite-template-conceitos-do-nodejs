@@ -121,7 +121,7 @@ app.delete(
   (request, response) => {
     const { todo, user } = request;
 
-    user.todos.splice(todo, 1);
+    user.todos.splice(todos.indexOf(todo), 1);
 
     return response.status(204).send();
   }
